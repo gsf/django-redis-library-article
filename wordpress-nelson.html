@@ -1,0 +1,340 @@
+<p>By <a id="refauthor" href="#author">Jeremy Nelson</a></p>
+
+<h2>Background</h2>
+<p>
+Colorado College's Tutt Library is a small urban academic library serving the needs of
+around 2,000 students along with faculty and staff at a private liberal arts college located in
+Colorado Springs, Colorado. As a member of the Colorado Alliance of Research Libraries, a
+consortium of academic and public libraries in Colorado and Wyoming, we participate in a
+union catalog comprising of the collections from member institutions. We operate our
+own instance of III's Millennium ILS and our Islandora/Fedora institutional repository is
+hosted through the Colorado Alliance's repository service. Like most academic libraries,
+our material budgets have shifted from physical to electronic resources and,
+as a consequence, we are doing more batch loading of MARC records for these electronic
+resources and less original or copy-cataloging of print material.
+</p>
+<p>
+With the quality of vendor-supplied MARC records varying considerably, the old workflows
+to manipulate and load the records into our legacy ILS was often a long and laborious
+process that took considerable time of the cataloging staff. By scripting the manipulation of
+these MARC record with Python and the pymarc [<a id="ref1" href="#note1">1</a>] Python module
+with a web frontend developed in Django, resulted in considerable time savings for cataloging staff. 
+This  lead to a second project where we developed a lightweight Django application for 
+senior students to self-submit their thesis or final essay, along with any supporting datasets, 
+to our Fedora Commons digital repository.
+</p>
+<p>
+A parallel effort was started at the library as we looked at various commercial and open
+source options for a new discovery layer for the library. Given monetary and resource
+constraints, along with the worry of maintaining multiple code-bases in different
+programming languages and environments, the library decided to fork the Kochief project, a
+Django-based discovery project, and develop a discovery layer using Django and Solr which
+later lead to the library releasing Aristotle, the name for the Tutt Library discovery
+layer project available on Github under the Apache 2 open source license.
+</p>
+<p>
+Later in 2011, we started exploring the possibility of using Redis, a popular NoSQL technology, 
+to represent bibliographic and operational information. This research lead to the FRBR-Redis 
+datastore project that was the topic for a 2012 Code4Lib presentation. 
+[<a id="ref2" href="#note2">2</a>] The FRBR-Redis datastore has over 850 unit tests that tested 
+using Redis to represent MARC and MODS metadata as well as RDA FRBR entities as Redis data primitives.
+</p>
+<h2>More about Redis</h2>
+<p>
+Redis, a key-value datastore that resides completely in a server's memory, is one of the
+many new NoSQL data technologies that offer alternative models for data representation and
+use. Redis supports data persistence in two ways: a RDB mode that saves the dataset at
+periodic intervals or an AOF mode that saves the dataset with every write operation. While
+there are advantages and disadvantages to each approach [<a id="ref3"
+href="#note3">3</a>], most libraries could employ a combination of RDB mode for
+bibliographic records and AOF mode for library transactional data like circulation
+statistics. Redis is relatively simple to use on Linux or Macintosh with client libraries
+for multiple programming languages.
+</p>
+<p>
+Redis is a key-value datastore server that is fundamentally different from the flat-file
+structure of a MARC record and the relational databases of more traditional library
+systems. The flexibility of Redis allows for rapid development of multiple types of apps
+by supporting different information schemes and structures within a key-store datastore.
+For example, in the Aristotle Library Apps project, RDA Core FRBR entities and attributes
+are extracted from MARC records following the MARC-to-RDA mappings provided in the ALA's
+RDA Toolkit  [<a href="ref4" href="#note4">4</a>]. Financial information, such as material
+orders and invoice information stored in our ILS, is extracted and added to the Redis
+datastore for reporting and budget forecasts. We even store the library hours as Redis
+Primitives in the datastore for use in a standalone app and as a JSON data feed to our
+discovery layer.
+</p>
+<p>
+The manner in which you construct a Redis key is extremely powerful and allows you to
+embed semantic or heuristic information about the data structure in the naming structure
+of the key. Redis assumes that related data use a key naming pattern and provides a global
+incremental function to auto-increment the value. For the Aristotle Library App project,
+each of the first group of FRBR entities, Work, Expression, Manifestation, Items are
+represented with the following pattern for each entity: rda:{name-of-entity}:{increment
+value}. In addition, the group three FRBR entities, Person CorporateBody, and Subject,
+along with the RDA Title element, are represented with the same key structure.
+</p>
+<p>
+Another important design consideration when using Redis is the type of data primitive to
+associate with a key. The simplest value is an atomic string. For example, in the
+Aristotle Library App, all RDA Core Carrier Types are simple keys that return a value.
+Using the Redis "GET" command on the rda:CarrierType:2 would return a string value of
+"DVD". But the advantages and power of Redis comes from other data primitives that can
+also be associated with a key. Many of the Redis data primitives are similar to the types
+of data structures usually found in programming languages. The Redis list stores unordered and 
+duplicate string values in a collection. The Redis set and sorted set are collection data
+primitives that store unique string values, with the sorted set having the additional property of
+a sort weight associated with each value in the sorted set. If a weight of 0 is used in a sorted set,
+Redis does a lexical sort based on the string values in the set. The last Redis collection data primitive is
+a hash. A Redis hash primitive associates multiple "sub"-keys with a single Redis key
+and with the "HGET" Redis command returns the value associated with that sub-key.
+</p>
+<p>
+Redis is not a relational database and it would be suboptimal to replicate a RDBMS in
+Redis. The key is the fundamental structure in Redis and not a table-row as it is in a
+RDBMS. Redis keys can also serve as a string value for other keys in the datastore providing a
+sort of crude SQL JOIN in one sense, but offers more flexibility in representing
+relationships between keys that would be difficult or impossible to replicate in a RDBMS.
+The downside is that referential integrity between different tables that SQL JOINs offers
+in a RDBMS are not built into Redis but eventual consistency can be achieved either
+through application logic on the client side, or through a number of different strategies
+using a combination of Redis server commands.
+</p>
+<p>
+The Redis string, set, sorted set, list and hash data primitives all offer different ways
+to represent library information in the Redis server. Redis also provides a number of server and
+data primitive specific commands that make it much easier for application development. Two
+examples of Redis commands that are extremely useful in application development are EXIST
+and TYPE. For the EXIST Redis server command, a string is passed in as a parameter and the
+EXIST command returns a boolean if the string is a Redis key in the
+datastore. The TYPE Redis server command, when passed in a key string, returns the type of
+Redis data structure that is represented by the key string or a null value if the key
+string doesnâ€™t exist in the datastore.
+</p>
+<p>
+ For large datasets that may not fit into RAM; the lead developer on the Redis project, 
+ Salvatore Sanfilippo, recommends using a presharding  [<a id="ref5" href="#note5">5</a>]
+</p>
+<h2>Redis as a Native FRBR Datastore</h2>
+<p>
+ 
+</p>
+<p>
+To facilitate development of library apps, much of the complexity with the Redis datastore
+interactions is abstracted from the app developer through the use of Python classes. These
+Python classes are built using the redis-py module [<a id="ref6" href="#note6">6</a>]. If
+the app requirements are such that the app developer needs custom data storage or to
+extend existing Redis functionality, Redis can easily accommodate those requirements
+through either the Python custom classes that extend existing classes or through direct
+manipulation of the Redis datastore with redis-py.
+</p>
+<h2>HTML5, Responsive Web Design, and Twitter Bootstrap</h2>
+<p>
+While native apps generally run faster and follow more closely to the recommended user
+interfaces guidelines for their respective platforms, the Tutt Library does not have the
+resources to maintain multiple apps development environments. Thankfully, a counter-trend
+has been the development of CSS and Javascript libraries that allow for fast and
+easy-to-use HTML5 apps that are more universal and can run on multiple mobile and tablet
+platforms as well as on personal computers running more modern web browsers. The goal of
+responsive web design, as expressed in the original article on the A List Apart website,
+</p>
+<blockquote>Rather than tailoring disconnected designs to each of an ever-increasing
+number of web devices, we can treat them as facets of the same experience. We can design
+for an optimal viewing experience, but embed standards-based technologies into our designs
+to make them not only more flexible, but more adaptive to the media that renders them. In
+short, we need to practice responsive web design. [<a id="ref7"
+href="#note7">7</a>]</blockquote>
+<p>
+The Aristotle Library App project uses the popular web framework, Bootstrap, as the basis
+for the user interfaces that respond and adjust for different client devices and displays.
+It is prohibitively expensive and impossible for a small library with limited staff and
+resources, to try to test out the apps on all of the different platforms, web browsers,
+and devices combinations used by our users. By focusing on the most popular and available
+devices in the library (i.e. Windows 7, Macintosh, iOS, and some limited Android phones
+and tablets), the Tutt Library targets specific functionality needed by its patrons and
+staff. The design intention of this HTML5-based app development environment is that
+creating a new app should be roughly equivalent in difficulty to building a simple website
+leveraging librarian and staff's pre-existing web development competencies with such tools
+as Dreamweaver and CMS systems. While there is training involved in educating staff about
+using Bootstrap and HTML5, the training burden and requirements for app development is
+considerable less than if the library tried to develop native apps for the iOS and Android
+environments.
+</p>
+<h2>Access and Discovery Apps</h2>
+<p>
+The majority of apps in the initial Colorado College App are categorized as Access and
+Discovery Apps. This category, including specialized search purpose apps, allow users to
+find and access the resources that are represented in the datastore. Access and Discovery
+apps broadly address the generic tasks by users of find, identify, select, and obtain
+resources as expressed in the FRBR specification [<a id="ref8" href="#note8">8</a>].  Also
+included in this category are apps like the Tutt Libraryâ€™s Hours App that simply display
+the library's hours of operations, that while not bibliographic in nature, addresses one
+of the top questions the library receives from the patrons wanting to use the library and
+library services.
+</p>
+<h3>The Call Number App</h3>
+<p>
+The Call Number App was the first App released and was the catalyst for the Aristotle
+Library App project. As we worked on the discovery layer, another librarian was inspired
+by a feature in Stanford Universityâ€™s Searchworks discovery layer that was built with
+Blacklight and Hydra. This feature was a call number browser that allowed a patron to see
+what call numbers were nearby each other in the library's stacks. As Tutt Library
+investigate how this feature was implemented by Stanford with Blacklight and Solr; we
+realized a simplified data model using Redis could be used instead of Solr. To create the
+type of sorted indexes needed for this app, normalized Library of Congress, SuDoc, and
+Local call-numbers were added as weights to Redis sorted sets. After the Call Number App
+was successfully embedded into the discovery layer, we started exploring the idea of
+developing dedicated and simplified apps for common types of searches that could be
+available as independent apps or could be used in larger systems, like the discovery layer
+or the library's website, through the use of JSON APIs and raw html.
+</p>
+<h3>Library Hours App</h3>
+<p>
+When the college adopted a CMS incapable of building a dynamic feed of the library's hours
+of operations to the library's homepage, we felt that a dedicated library hours app with a
+JSON feed and the hours data stored in Redis, would work instead. The Library Hours App
+stores dates and hours in a set. The patron user interface for the Hours App displays a
+simple message with the library's current hours, if the library is closed, the app
+displays the next available date and time when the library is open. The app also has an
+administrative user interface for authenticated library staff to add or modify the hours
+data structures in Redis.  
+</p>
+<h2>Productivity Apps</h2>
+<p>
+The second category of apps are productivity apps; apps that are developed to either
+manage or report on different resources in the collections that are represented in the
+FRBR Redis datastore. These apps require the user to first authenticate and then depending
+on the app and the userâ€™s authorizations, allow for manipulation or reporting of library
+information including the native RDA Core FRBR entities in the datastore. In the Orders
+App, order records were imported from the Tutt Libraryâ€™s legacy ILS into the FRBR Redis
+datastore which suddenly freed this information from the proprietary and a somewhat odd
+technical choice of the ILS vendor to tightly bind order information to the MARC
+bibliographic record, even so far as to create custom 9xx fields for order information. By
+separating the order information into Redis sets with each invoice and order as distinct
+Redis keys, visualizations and budget reporting became much easier and simpler to achieve,
+something that in the past would have required extensive data munging from MARC, exporting
+the information from the ILS and then importing, cleaning up, before being imported into
+Microsoft Excel for even basic analysis of this critical aspect of library operational
+information.
+</p>
+<h2>Roadmap for Aristotle Library App Project</h2>
+<p>
+Currently, the Tutt Library is using its Call Number and Hours apps to augment the
+library's website and discovery layer. These apps, along with an Article and Book search
+apps, are publicly available at <a
+href="http://discovery.coloradocollege.edu/apps/">http://discovery.coloradocollege.edu/
+apps/</a>. The same JSON interface that the Call Number App uses to populate a
+shelf-browser is also used in the record view in the discovery layer. The Hours App
+provides an embedded HTML snippet for inclusion in various locations in the library's
+website.
+</p>
+<p>
+Instead of using one large Redis instance for all of the library's bibliographic and 
+operational data, we are using separate Redis instances for each of the FRBR RDA entities. 
+Redis is single-threaded with a small memory footprint and as explained  
+</p>
+<p>
+The next wave of app development will be focused on the various areas in the library
+material circulation including check-out, course reserves, and inventory. The intention is
+to have the main users of these workflows in the library, to be the main testers and
+consultants of these productivity apps as the systems group develops and releases them. In
+keeping with an AGILE philosophy, each app should not be too complicated to design,
+implement, and start testing within a three-to-four week sprint, which nicely coincides
+with the current academic block calendar at Colorado College.
+</p>
+<h3>App Support for LDAP Authentication</h3>
+<p>
+Currently authentication is provided through a custom Django authentication backend
+developed to interface with the Tutt Library's legacy ILS. As the Tutt Library transitions
+from a traditional ILS to a library apps model, the library plans to use the
+identification credentials that primary patrons already have as members of the college
+community. As with most organizations, Colorado College use Microsoft's ActiveDirectory to
+manage authentication tasks for networked resources on campus. Using Django's rich and
+mature LDAP support, the next piece necessary for an enterprise-level app ecosystem will
+be to use these Django tools implemented for the Aristotle Library Apps.
+</p>
+<h3>Redis Cluster and Consortium Union Catalog</h3>
+
+<img src="http://journal.code4lib.org/media/issue18/Nelson/figure1.png">
+<p>
+An early concern brought up as challenge from being too radical in technology change as
+the Tutt Library moves to an app model for library operations and technical infrastructure
+is interoperability, first with the regional Colorado Alliance of Research Library's
+Prospector union catalog that Colorado College is both an active lender and borrower for
+library material, necessary as the Colorado College operates an block plan of students
+taking an intense 3 1/2 week course for a college course credit. With students needing
+research material promptly, a strong service point of the Tutt Library is deliver needed
+material to students, faculty, and staff as promptly as possible, preferably under 72
+hours. The Prospector-based ILL service is critical in the libraryâ€™s ability meet this
+tight deadline for materials any replacement or legacy ILS cannot diminish that service.
+</p>
+<p>
+Maintaining MARC record level interoperability should be relatively easy in the Library
+App Portfolio as the MARC utilities and productivity apps are in active development.  The
+challenge is integrating material request and real-time circulation status into the
+proprietary system the Alliance currently uses for the Prospector. A strength of Redis is
+its ability to serve, store, and manage large volumes of keys-values for truly
+mind-boggling web traffic for such websites as Github, Engine Yard, Craigslist, Disqus,
+Stackoverflow, and some major pornograpy sites [<a id="ref9" href="#note9">9</a>].  As
+the library gains more experience with using Redis and with the success of very large
+websites already using Redis, the library is in the early discussion with the Alliance
+about expanding the Aristotle Library Apps project to scale for the millions of records.
+</p>
+<p>
+Some interesting network topologies for bibliographic information may be possible when
+using Redis as the underlying and scalable datastore using FRBR/RDA as the organizing
+principle. For example the Alliance may host the shared Work and Expression datastore
+instances and subscribe to each institutions Manifestation and Items datastores that are
+managed and hosted either locally at each institution, by the Alliance, or by using a
+commercial cloud provider. Each institution could use the Alliance's hosted Work and
+Expression datastores in their own Access and Discovery Apps.
+</p>
+<p>
+Under in active development, Redis Cluster, with plans to have a stable release of Redis
+Cluster by the end of 2012. The library and the Alliance are also exploring some grant
+opportunities to fund the development and support for this new type of bibliographic
+datastore and the scale of hundred of millions of FRBR entities.
+</p>
+<h2>Notes</h2>
+
+[<a id="note1" href="#ref1">1</a>] pymarc. Available from: <a
+href="https://github.com/edsu/pymarc">https://github.com/edsu/pymarc</a>
+
+[<a id="note2" href="#ref2">2</a>] Nelson J. NoSQL Bibliographic Records: Implementing a
+Native FRBR Datastore with Redis. Code4lib 2012, Seattle, Washington. Available from: <a
+href="http://discovery.coloradocollege.edu/code4lib">http://discovery.coloradocollege.edu/
+code4lib</a>
+
+[<a id="note3" href="#ref3">3</a>] Redis persistence. Available from: <a
+href="http://redis.io/topics/persistence">http://redis.io/topics/persistence</a>
+
+[<a id="note4" href="#ref4">4</a>] ALA's RDA Toolkit Mappings. Available with subscription at: <a
+href="http://access.rdatoolkit.org/document.php?id=jscmap1">http://access.rdatoolkit.org/document.php?id=jscmap1</a>]
+
+[<a id="note5" href="#ref5">5</a>] Redis Presharding. Available from 
+<a href="http://antirez.com/post/redis-presharding.html">http://antirez.com/post/redis-presharding.html</a>
+
+[<a id="note6" href="#ref6">6</a>] redis-py. Available from: <a
+href="https://github.com/andymccurdy/redis-py/">https://github.com/andymccurdy/redis-py/</
+a>
+
+[<a id="note7" href="#ref7">7</a>] Marcotte E. Responsive Web Design. <em>A List
+Apart</em>. May 25, 2010. Available from: <a
+href="http://www.alistapart.com/articles/responsive-web-design/">http://www.alistapart.com
+/articles/responsive-web-design/</a>
+
+[<a id="note8" href="#ref8">8</a>] Functional Requirements for Bibliographic Records.
+International Federation of Library Associations and Institutions. December 26, 2007.
+Available from: <a
+href="http://archive.ifla.org/VII/s13/frbr/frbr_current2.htm">http://archive.ifla.org/VII/
+s13/frbr/frbr_current2.htm</a>
+
+[<a id="note9" href="#ref9">9</a>] Who's using Redis? Available from: <a
+href="http://redis.io/topics/whos-using-redis">http://redis.io/topics/whos-using-redis</a>
+
+<h2 id="author" >About the Author</h2> Jeremy Nelson (Jeremy.Nelson@ColoradoCollege.edu)
+is the Metadata/Systems Librarian at Colorado College. He is responsible for ensuring the
+Tutt Library technology that students, staff, and faculty at Colorado College depend on is
+available when they need it both on and off campus. He is also responsible for the
+cataloging department, ensuring that electronic and physical material acquired by the
+library is cataloged correctly and is positioned for future further use.
