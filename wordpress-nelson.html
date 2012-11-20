@@ -2,42 +2,38 @@
 
 <h2>Background</h2>
 <p>
-Colorado College's Tutt Library is a small urban academic library serving the needs of
-around 2,000 students along with faculty and staff at a private liberal arts college located in
-Colorado Springs, Colorado. As a member of the Colorado Alliance of Research Libraries, a
-consortium of academic and public libraries in Colorado and Wyoming, we participate in a
-union catalog comprising of the collections from member institutions. We operate our
-own instance of III's Millennium ILS and our Islandora/Fedora institutional repository is
-hosted through the Colorado Alliance's repository service. Like most academic libraries,
-our material budgets have shifted from physical to electronic resources and,
-as a consequence, we are doing more batch loading of MARC records for these electronic
-resources and less original or copy-cataloging of print material.
+Colorado College's Tutt Library is a small, urban, academic library serving the needs of over 2,000
+students along with faculty and staff in Colorado Springs, Colorado. As a member of the Colorado
+Alliance of Research Libraries, a consortium of academic and public libraries in Colorado and
+Wyoming, we participate in a union catalog comprising the collections of our member institutions. We
+operate our own instance of III's Millennium ILS, and our Islandora/Fedora Institutional Repository
+is hosted through the Colorado Alliance's repository service. Like most academic libraries, our
+material budgets have shifted from physical to electronic resources and, as a consequence, we are
+doing more batch loading of MARC records for these electronic resources and less original or
+copy-cataloging of print material.
 </p>
 <p>
-With the quality of vendor-supplied MARC records varying considerably, the old workflows
-to manipulate and load the records into our legacy ILS was often a long and laborious
-process that took considerable time of the cataloging staff. By scripting the manipulation of
-these MARC record with Python and the pymarc [<a id="ref1" href="#note1">1</a>] Python module
-with a web frontend developed in Django, resulted in considerable time savings for cataloging staff. 
-This  lead to a second project where we developed a lightweight Django application for 
-senior students to self-submit their thesis or final essay, along with any supporting datasets, 
-to our Fedora Commons digital repository.
+With the quality of vendor-supplied MARC records varying considerably, the old workflows to
+manipulate and load records into our legacy ILS were often long and laborious processes. By
+scripting the manipulation of these MARC records with Python and the pymarc Python module 
+[<a id="ref1" href="#note1">1</a>], then developing a web frontend in Django, we brought 
+considerable time savings to our cataloging staff.  This lead to a second project Django 
+application that enabled senior students to self-submit their thesis or final essay, along with 
+any supporting datasets, to our Fedora Commons digital repository.
 </p>
 <p>
-A parallel effort was started at the library as we looked at various commercial and open
-source options for a new discovery layer for the library. Given monetary and resource
-constraints, along with the worry of maintaining multiple code-bases in different
-programming languages and environments, the library decided to fork the Kochief project, a
-Django-based discovery project, and develop a discovery layer using Django and Solr which
-later lead to the library releasing Aristotle, the name for the Tutt Library discovery
-layer project available on Github under the Apache 2 open source license.
+A parallel effort was started as we looked at various commercial and open source options for a new
+discovery layer. Given monetary and resource constraints, along with the worry of maintaining
+multiple codebases in different programming languages and environments, the library decided to fork
+Kochief, a Django-based discovery project. This decision later lead to the release of Aristotle, the
+Tutt Library discovery-layer project available on Github under the Apache 2 open source license.
 </p>
 <p>
-Later in 2011, we started exploring the possibility of using Redis, a popular NoSQL technology, 
-to represent bibliographic and operational information. This research lead to the FRBR-Redis 
-datastore project that was the topic for a 2012 Code4Lib presentation. 
-[<a id="ref2" href="#note2">2</a>] The FRBR-Redis datastore has over 850 unit tests that tested 
-using Redis to represent MARC and MODS metadata as well as RDA FRBR entities as Redis data primitives.
+In 2011, we started to explore using Redis, a popular NoSQL technology, to represent bibliographic
+and operational information. This research lead to the FRBR-Redis datastore project that was the
+topic of a 2012 Code4Lib presentation [<a id="ref2" href="#note2">2</a>]. The FRBR-Redis datastore
+has over 850 unit tests that demonstrate Redis's ability to represent MARC and MODS metadata as well
+as RDA FRBR entities as Redis data primitives.
 </p>
 <h2>More about Redis</h2>
 <p>
