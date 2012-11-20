@@ -37,79 +37,70 @@ as RDA FRBR entities as Redis data primitives.
 </p>
 <h2>More about Redis</h2>
 <p>
-Redis, a key-value datastore that resides completely in a server's memory, is one of the
-many new NoSQL data technologies that offer alternative models for data representation and
-use. Redis supports data persistence in two ways: a RDB mode that saves the dataset at
-periodic intervals or an AOF mode that saves the dataset with every write operation. While
-there are advantages and disadvantages to each approach [<a id="ref3"
-href="#note3">3</a>], most libraries could employ a combination of RDB mode for
-bibliographic records and AOF mode for library transactional data like circulation
-statistics. Redis is relatively simple to use on Linux or Macintosh with client libraries
-for multiple programming languages.
+Redis, a key-value datastore, is one of the many new NoSQL data technologies that offer alternative
+models for data representation and use. Redis supports data persistence in two ways: an RDB mode
+that saves the dataset at periodic intervals, and an AOF mode that saves the dataset with every
+write operation. While there are advantages and disadvantages to each approach [<a id="ref3"
+href="#note3">3</a>], most libraries could employ a combination of RDB mode for bibliographic
+records and AOF mode for library transactional data like circulation statistics.
 </p>
 <p>
-Redis is a key-value datastore server that is fundamentally different from the flat-file
-structure of a MARC record and the relational databases of more traditional library
-systems. The flexibility of Redis allows for rapid development of multiple types of apps
-by supporting different information schemes and structures within a key-store datastore.
-For example, in the Aristotle Library Apps project, RDA Core FRBR entities and attributes
-are extracted from MARC records following the MARC-to-RDA mappings provided in the ALA's
-RDA Toolkit  [<a href="ref4" href="#note4">4</a>]. Financial information, such as material
-orders and invoice information stored in our ILS, is extracted and added to the Redis
-datastore for reporting and budget forecasts. We even store the library hours as Redis
-Primitives in the datastore for use in a standalone app and as a JSON data feed to our
-discovery layer.
+Redis is fundamentally different from the flat-file structure of a MARC record and the relational
+databases of more traditional library systems. The flexibility of Redis allows for the rapid
+development of multiple apps by supporting different information schemes and structures within a
+single datastore.  For example, in the Aristotle Library Apps project, RDA Core FRBR entities and
+attributes are extracted from MARC records following the MARC-to-RDA mappings provided in the ALA's
+RDA Toolkit  [<a href="ref4" href="#note4">4</a>]. Meanwhile, financial information, such as
+material orders and invoice information stored in our ILS, is extracted and added to the Redis
+datastore for reporting and budget forecasts. We even store the library hours as Redis Primitives in
+the datastore for use in a standalone app and as a JSON data feed for our discovery layer.
 </p>
 <p>
-The manner in which you construct a Redis key is extremely powerful and allows you to
-embed semantic or heuristic information about the data structure in the naming structure
-of the key. Redis assumes that related data use a key naming pattern and provides a global
-incremental function to auto-increment the value. For the Aristotle Library App project,
-each of the first group of FRBR entities, Work, Expression, Manifestation, Items are
-represented with the following pattern for each entity: rda:{name-of-entity}:{increment
-value}. In addition, the group three FRBR entities, Person CorporateBody, and Subject,
-along with the RDA Title element, are represented with the same key structure.
+The manner in which a Redis key is constructed allows for the embedding of semantic or heuristic
+information about the data structure in its naming structure.  Redis assumes that related data use a
+key naming pattern, and even provides a global function to increment the key ID. For the Aristotle
+Library App project, for example, each of the first group of FRBR entities (Work, Expression,
+Manifestation, and Items) are represented with the following pattern for each entity:
+<code>rda:{name-of-entity}:{increment value}</code>. In addition, the three FRBR entities (Person,
+CorporateBody, and Subject), as well as with the RDA Title element, are represented with the same
+key structure.
 </p>
 <p>
-Another important design consideration when using Redis is the type of data primitive to
-associate with a key. The simplest value is an atomic string. For example, in the
-Aristotle Library App, all RDA Core Carrier Types are simple keys that return a value.
-Using the Redis "GET" command on the rda:CarrierType:2 would return a string value of
-"DVD". But the advantages and power of Redis comes from other data primitives that can
-also be associated with a key. Many of the Redis data primitives are similar to the types
-of data structures usually found in programming languages. The Redis list stores unordered and 
-duplicate string values in a collection. The Redis set and sorted set are collection data
-primitives that store unique string values, with the sorted set having the additional property of
-a sort weight associated with each value in the sorted set. If a weight of 0 is used in a sorted set,
-Redis does a lexical sort based on the string values in the set. The last Redis collection data primitive is
-a hash. A Redis hash primitive associates multiple "sub"-keys with a single Redis key
-and with the "HGET" Redis command returns the value associated with that sub-key.
+Another important design consideration when using Redis is the type of data primitive to associate
+with a key. The simplest value is an atomic string. For example, in the Aristotle Library App, all
+RDA Core Carrier Types are simple keys that return a value.  Using the Redis "GET" command on the
+key <code>rda:CarrierType:2</code> would return a string value of "DVD". The real power of Redis,
+however, is revealed in the use of other data primitives. 
 </p>
 <p>
-Redis is not a relational database and it would be suboptimal to replicate a RDBMS in
-Redis. The key is the fundamental structure in Redis and not a table-row as it is in a
-RDBMS. Redis keys can also serve as a string value for other keys in the datastore providing a
-sort of crude SQL JOIN in one sense, but offers more flexibility in representing
-relationships between keys that would be difficult or impossible to replicate in a RDBMS.
-The downside is that referential integrity between different tables that SQL JOINs offers
-in a RDBMS are not built into Redis but eventual consistency can be achieved either
-through application logic on the client side, or through a number of different strategies
-using a combination of Redis server commands.
+The Redis list is a collection primitive which stores unordered and duplicate string values. The
+Redis set and sorted set store unique string values, with the sorted set associating a sort weight
+with each value in the sorted set. If a weight of 0 is used in a sorted set, Redis does a lexical
+sort based on the string values in the set. The last Redis data primitive is a hash. A Redis hash
+associates multiple sub-keys with a single Redis key and with the <code>HGET</code> command returns
+the value associated with that sub-key.
 </p>
 <p>
-The Redis string, set, sorted set, list and hash data primitives all offer different ways
-to represent library information in the Redis server. Redis also provides a number of server and
-data primitive specific commands that make it much easier for application development. Two
-examples of Redis commands that are extremely useful in application development are EXIST
-and TYPE. For the EXIST Redis server command, a string is passed in as a parameter and the
-EXIST command returns a boolean if the string is a Redis key in the
-datastore. The TYPE Redis server command, when passed in a key string, returns the type of
-Redis data structure that is represented by the key string or a null value if the key
-string doesnâ€™t exist in the datastore.
+Redis is not a relational database and it would be suboptimal to attempt to replicate an RDBMS.  In
+Redis, the key is the fundamental structure, not a table-row as in an RDBMS. Redis keys can also
+serve as a string value for other keys in the datastore, providing a sort of crude SQL JOIN, but
+offering more flexibility in representing relationships between keys in a manner that would be
+difficult or impossible to replicate in an RDBMS. The downside is that referential integrity
+between different tables is not built into Redis. Eventual consistency can be achieved either
+through application logic or through strategies involving a combination of Redis server commands.
 </p>
 <p>
- For large datasets that may not fit into RAM; the lead developer on the Redis project, 
- Salvatore Sanfilippo, recommends using a presharding  [<a id="ref5" href="#note5">5</a>]
+The Redis string, set, sorted set, list and hash data primitives all offer different ways to
+represent library information in the Redis server. Redis also provides a number of server and
+primitive-specific commands that ease application development, including <code>EXIST</code> and
+<code>TYPE</code>. For the <code>EXIST</code> command, a string is passed in as a parameter and a
+boolean is returned confirming whether the string is a key in the datastore. The <code>TYPE</code>
+command, when passed in a key string, returns the type of Redis data structure that is represented
+by the key or a null value if it doesn't exist.
+</p>
+<p>
+For large datasets that may not fit into RAM; the lead developer on the Redis project, 
+Salvatore Sanfilippo, recommends using a presharding  [<a id="ref5" href="#note5">5</a>]
 </p>
 <h2>Redis as a Native FRBR Datastore</h2>
 <p>
