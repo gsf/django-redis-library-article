@@ -177,54 +177,48 @@ data structures in Redis.
 </p>
 <h2>Productivity Apps</h2>
 <p>
-The second category of apps are productivity apps; apps that are developed to either
-manage or report on different resources in the collections that are represented in the
-FRBR Redis datastore. These apps require the user to first authenticate and then depending
-on the app and the userâ€™s authorizations, allow for manipulation or reporting of library
-information including the native RDA Core FRBR entities in the datastore. In the Orders
-App, order records were imported from the Tutt Libraryâ€™s legacy ILS into the FRBR Redis
-datastore which suddenly freed this information from the proprietary and a somewhat odd
-technical choice of the ILS vendor to tightly bind order information to the MARC
-bibliographic record, even so far as to create custom 9xx fields for order information. By
-separating the order information into Redis sets with each invoice and order as distinct
-Redis keys, visualizations and budget reporting became much easier and simpler to achieve,
-something that in the past would have required extensive data munging from MARC, exporting
-the information from the ILS and then importing, cleaning up, before being imported into
-Microsoft Excel for even basic analysis of this critical aspect of library operational
-information.
+The second category of apps are for productivity, developed to either manage or report on resources
+in the collections represented in the FRBR Redis datastore. These apps require the user to first
+authenticate, then, depending on the app and the user's authorizations, allow for the manipulation
+or reporting of library information, which includes the native RDA Core FRBR entities in the
+datastore. In the Orders App, order records were imported from Tutt Library's legacy ILS into the
+FRBR Redis datastore. By doing so, we freed this information from the proprietary and somewhat odd
+technical choice of the ILS vendor to tightly bind order information to the MARC bibliographic
+record (even going so far as to create custom 9xx fields for order information). By separating the
+order information into Redis sets with each invoice and order as distinct Redis keys, visualizations
+and budget reporting became much simpler. Before we had this tool we would have to export this data
+from the ILS and munge it from MARC, then clean it up before importing it into Microsoft Excel for
+analysis of this critical aspect of library operational information.
 </p>
-<h2>Roadmap for Aristotle Library App Project</h2>
+<h2>Roadmap for the Aristotle Library App Project</h2>
 <p>
-Currently, the Tutt Library is using its Call Number and Hours apps to augment the
-library's website and discovery layer. These apps, along with an Article and Book search
-apps, are publicly available at <a
-href="http://discovery.coloradocollege.edu/apps/">http://discovery.coloradocollege.edu/
-apps/</a>. The same JSON interface that the Call Number App uses to populate a
-shelf-browser is also used in the record view in the discovery layer. The Hours App
-provides an embedded HTML snippet for inclusion in various locations in the library's
-website.
+Currently, the Tutt Library is using its Call Number App and Hours App to augment the library's
+website and discovery layer. These are publicly available, along with the Article and Book Search
+Apps, at <a href="http://discovery.coloradocollege.edu/apps/">http://discovery.coloradocollege.edu/
+  apps/</a>. The same JSON interface that the Call Number App uses to populate a shelf-browser is
+also used in the record view in the discovery layer. The Hours App provides an embedded HTML snippet
+for inclusion in various locations in the library's website.
 </p>
 <p>
-Instead of using one large Redis instance for all of the library's bibliographic and 
-operational data, we are using separate Redis instances for each of the FRBR RDA entities. 
-Redis is single-threaded with a small memory footprint and as explained  
+Instead of using one large Redis instance for all of the library's bibliographic and operational
+data, we are using separate Redis instances for each of the FRBR RDA entities.  Redis is
+single-threaded with a small memory footprint and as explained  
 </p>
 <p>
-The next wave of app development will be focused on the various areas in the library
-material circulation including check-out, course reserves, and inventory. The intention is
-to have the main users of these workflows in the library, to be the main testers and
-consultants of these productivity apps as the systems group develops and releases them. In
-keeping with an AGILE philosophy, each app should not be too complicated to design,
-implement, and start testing within a three-to-four week sprint, which nicely coincides
-with the current academic block calendar at Colorado College.
+The next wave of app development will focus on material circulation, including check-out, course
+reserves, and inventory. The main users of these workflows will be in the library, serving as
+testers and consultants for these productivity apps while the systems group develops and releases
+them. In keeping with AGILE philosophy, each app should be simple enough to design, implement, and
+start testing within a three-to-four week sprint, which nicely coincides with the current academic
+block calendar at Colorado College.
 </p>
 <h3>App Support for LDAP Authentication</h3>
 <p>
-Currently authentication is provided through a custom Django authentication backend
+Currently, authentication is provided through a custom Django authentication backend
 developed to interface with the Tutt Library's legacy ILS. As the Tutt Library transitions
 from a traditional ILS to a library apps model, the library plans to use the
 identification credentials that primary patrons already have as members of the college
-community. As with most organizations, Colorado College use Microsoft's ActiveDirectory to
+community. As with most organizations, Colorado College uses Microsoft's ActiveDirectory to
 manage authentication tasks for networked resources on campus. Using Django's rich and
 mature LDAP support, the next piece necessary for an enterprise-level app ecosystem will
 be to use these Django tools implemented for the Aristotle Library Apps.
