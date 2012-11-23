@@ -107,72 +107,62 @@ Salvatore Sanfilippo, recommends using a presharding  [<a id="ref5" href="#note5
  
 </p>
 <p>
-To facilitate the development of library apps, the Redis datastore
-interactions are abstracted via Python classes, which are built with the redis-py 
-module [<a id="ref6" href="#note6">6</a>]. If
-the app developer needs custom data storage or extended Redis functionality, Python 
-custom classes can extend existing classes through direct
-manipulation of the datastore.
+To facilitate the development of library apps, the Redis datastore interactions are abstracted via
+Python classes, which are built with the redis-py module [<a id="ref6" href="#note6">6</a>]. If the
+app developer needs custom data storage or extended Redis functionality, Python custom classes can
+extend existing classes through direct manipulation of the datastore.
 </p>
 <h2>HTML5, Responsive Web Design, and Twitter Bootstrap</h2>
 <p>
-While native apps generally run faster and follow more closely to the recommended user
-interfaces guidelines for their respective platforms, the Tutt Library does not have the
-resources to maintain multiple apps development environments. Thankfully, a counter-trend
-has been the development of CSS and Javascript libraries that allow for fast and
-easy-to-use HTML5 apps that are more universal and can run on multiple mobile and tablet
-platforms as well as on personal computers running more modern web browsers. The goal of
-responsive web design, as expressed in the original article on the A List Apart website,
+While native apps generally run faster and more closely follow the recommended user interface
+guidelines for their respective platforms, the Tutt Library does not have the resources to maintain
+multiple app development environments. Thankfully, a countertrend has been the development of CSS
+and JavaScript libraries that allow for fast and easy-to-use HTML5 apps that are more universal and
+can run on multiple mobile and tablet platforms as well as on personal computers running more modern
+web browsers. The goal of responsive web design, as expressed in the original article on A List
+Apart:
 </p>
-<blockquote>Rather than tailoring disconnected designs to each of an ever-increasing
-number of web devices, we can treat them as facets of the same experience. We can design
-for an optimal viewing experience, but embed standards-based technologies into our designs
-to make them not only more flexible, but more adaptive to the media that renders them. In
-short, we need to practice responsive web design. [<a id="ref7"
-href="#note7">7</a>]</blockquote>
+<blockquote>Rather than tailoring disconnected designs to each of an ever-increasing number of web
+devices, we can treat them as facets of the same experience. We can design for an optimal viewing
+experience, but embed standards-based technologies into our designs to make them not only more
+flexible, but more adaptive to the media that renders them. In short, we need to practice
+responsive web design. [<a id="ref7" href="#note7">7</a>]</blockquote>
 <p>
-The Aristotle Library App project uses the popular web framework, Bootstrap, as the basis
-for the user interfaces that respond and adjust for different client devices and displays.
-It is prohibitively expensive and impossible for a small library with limited staff and
-resources, to try to test out the apps on all of the different platforms, web browsers,
-and devices combinations used by our users. By focusing on the most popular and available
-devices in the library (i.e. Windows 7, Macintosh, iOS, and some limited Android phones
-and tablets), the Tutt Library targets specific functionality needed by its patrons and
-staff. The design intention of this HTML5-based app development environment is that
-creating a new app should be roughly equivalent in difficulty to building a simple website
-leveraging librarian and staff's pre-existing web development competencies with such tools
-as Dreamweaver and CMS systems. While there is training involved in educating staff about
-using Bootstrap and HTML5, the training burden and requirements for app development is
-considerable less than if the library tried to develop native apps for the iOS and Android
-environments.
+The Aristotle Library App project uses the popular web framework Bootstrap as the basis for the user
+interfaces that respond and adjust for different client devices and displays.  It is prohibitively
+expensive and impossible for a small library with limited staff and resources to test out apps on
+all of the different platforms, web browsers, and devices used by our users. By focusing on the most
+popular and available devices in the library (Windows 7, Macintosh, iOS, and some Android phones and
+tablets), the Tutt Library targets specific functionality needed by its patrons and staff. The
+design intention of this HTML5-based app development environment is that creating a new app should
+be roughly equivalent in difficulty to building a simple website leveraging librarian and staff's
+pre-existing competencies with such tools as Dreamweaver and CMS systems. While there is training
+involved in educating staff about Bootstrap and HTML5, the training burden and requirements for app
+development is considerably less than if the library tried to develop native apps for the iOS and
+Android environments.
 </p>
 <h2>Access and Discovery Apps</h2>
 <p>
-The majority of apps in the initial Colorado College App are categorized as Access and
-Discovery Apps. This category, including specialized search purpose apps, allow users to
-find and access the resources that are represented in the datastore. Access and Discovery
-apps broadly address the generic tasks by users of find, identify, select, and obtain
-resources as expressed in the FRBR specification [<a id="ref8" href="#note8">8</a>].  Also
-included in this category are apps like the Tutt Libraryâ€™s Hours App that simply display
-the library's hours of operations, that while not bibliographic in nature, addresses one
-of the top questions the library receives from the patrons wanting to use the library and
-library services.
+The majority of apps in the initial Colorado College App are categorized as Access and Discovery
+Apps, which allow users to find and access the resources represented in the datastore. Access and
+Discovery Apps broadly address the generic tasks by users to find, identify, select, and obtain
+resources as expressed in the FRBR specification [<a id="ref8" href="#note8">8</a>].  Also included
+in this category are apps like the Tutt Library's Hours App, which displays the library's hours of
+operations. While not bibliographic in nature, it addresses one of the top questions the library
+receives from the patrons wanting to use the library.
 </p>
 <h3>The Call Number App</h3>
 <p>
-The Call Number App was the first App released and was the catalyst for the Aristotle
-Library App project. As we worked on the discovery layer, another librarian was inspired
-by a feature in Stanford Universityâ€™s Searchworks discovery layer that was built with
-Blacklight and Hydra. This feature was a call number browser that allowed a patron to see
-what call numbers were nearby each other in the library's stacks. As Tutt Library
-investigate how this feature was implemented by Stanford with Blacklight and Solr; we
-realized a simplified data model using Redis could be used instead of Solr. To create the
-type of sorted indexes needed for this app, normalized Library of Congress, SuDoc, and
-Local call-numbers were added as weights to Redis sorted sets. After the Call Number App
-was successfully embedded into the discovery layer, we started exploring the idea of
-developing dedicated and simplified apps for common types of searches that could be
-available as independent apps or could be used in larger systems, like the discovery layer
-or the library's website, through the use of JSON APIs and raw html.
+The Call Number App was the first app released and served as the catalyst for the entire Aristotle
+project. As we worked on the discovery layer, another librarian was inspired by a feature in
+Stanford University's Searchworks (built with Blacklight and Hydra) that allowed a patron to see
+which call numbers were near each other in the library's stacks. While investigating Stanford's
+implementation based on Solr, we realized a simplified data model could be used with Redis. To
+create the type of sorted indexes needed for this app, normalized Library of Congress, SuDoc, and
+local call numbers were added as weights to Redis sorted sets. Once we had embedded the Call Number
+App into the discovery layer, we explored the further development of dedicated, simplified apps for
+common searches. These independent apps could be used in larger systems, like the discovery layer or
+the library's website, through the use of JSON APIs and raw html.
 </p>
 <h3>Library Hours App</h3>
 <p>
