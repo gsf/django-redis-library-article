@@ -214,56 +214,48 @@ block calendar at Colorado College.
 </p>
 <h3>App Support for LDAP Authentication</h3>
 <p>
-Currently, authentication is provided through a custom Django authentication backend
-developed to interface with the Tutt Library's legacy ILS. As the Tutt Library transitions
-from a traditional ILS to a library apps model, the library plans to use the
-identification credentials that primary patrons already have as members of the college
-community. As with most organizations, Colorado College uses Microsoft's ActiveDirectory to
-manage authentication tasks for networked resources on campus. Using Django's rich and
-mature LDAP support, the next piece necessary for an enterprise-level app ecosystem will
-be to use these Django tools implemented for the Aristotle Library Apps.
+Currently, authentication is provided through a custom Django authentication backend developed to
+interface with the Tutt Library's legacy ILS. As the library transitions from a traditional ILS to a
+modular apps model, we plan to use the identification credentials that primary patrons already have
+as members of the college community. As with many organizations, Colorado College uses Microsoft's
+ActiveDirectory to manage authentication tasks for networked resources on campus. The next piece
+necessary for an enterprise-level app ecosystem will be an authentication module leveraging Django's
+rich and mature LDAP support.
 </p>
 <h3>Redis Cluster and Consortium Union Catalog</h3>
 
 <img src="http://journal.code4lib.org/media/issue18/Nelson/figure1.png">
 <p>
-An early concern brought up as challenge from being too radical in technology change as
-the Tutt Library moves to an app model for library operations and technical infrastructure
-is interoperability, first with the regional Colorado Alliance of Research Library's
-Prospector union catalog that Colorado College is both an active lender and borrower for
-library material, necessary as the Colorado College operates an block plan of students
-taking an intense 3 1/2 week course for a college course credit. With students needing
-research material promptly, a strong service point of the Tutt Library is deliver needed
-material to students, faculty, and staff as promptly as possible, preferably under 72
-hours. The Prospector-based ILL service is critical in the libraryâ€™s ability meet this
-tight deadline for materials any replacement or legacy ILS cannot diminish that service.
+Concern over interoperability was brought up as a challenge to any radical technology change as the
+Tutt Library moved to an app model. The regional Colorado Alliance of Research Library's Prospector
+union catalog, in which Colorado College is both an active lender and borrower, supports the
+college's block plan, where students take intense, 3 1/2 week courses for college credit. With
+students needing research material promptly, Tutt Library strives to deliver to students, faculty,
+and staff as promptly as possible, preferably under 72 hours. The Prospector-based ILL service is
+critical to meet this tight deadline for materials. Any replacement or legacy ILS cannot diminish
+that service.
 </p>
 <p>
-Maintaining MARC record level interoperability should be relatively easy in the Library
-App Portfolio as the MARC utilities and productivity apps are in active development.  The
-challenge is integrating material request and real-time circulation status into the
-proprietary system the Alliance currently uses for the Prospector. A strength of Redis is
-its ability to serve, store, and manage large volumes of keys-values for truly
-mind-boggling web traffic for such websites as Github, Engine Yard, Craigslist, Disqus,
-Stackoverflow, and some major pornograpy sites [<a id="ref9" href="#note9">9</a>].  As
-the library gains more experience with using Redis and with the success of very large
-websites already using Redis, the library is in the early discussion with the Alliance
-about expanding the Aristotle Library Apps project to scale for the millions of records.
+Maintaining record-level interoperability should be relatively easy in the Library App Portfolio as
+long as the MARC utilities and productivity apps are in active development. The challenge is in
+integrating material requests and real-time circulation status into the proprietary system the
+Alliance currently uses for the Prospector. A strength of Redis is its ability to store and serve
+large volumes of data, as it has done for sites such as Github, Engine Yard, Craigslist, Disqus, and
+Stack Overflow [<a id="ref9" href="#note9">9</a>]. The library is in early discussions with the
+Alliance about expanding the Aristotle Library Apps project to scale for the millions of records.
 </p>
 <p>
-Some interesting network topologies for bibliographic information may be possible when
-using Redis as the underlying and scalable datastore using FRBR/RDA as the organizing
-principle. For example the Alliance may host the shared Work and Expression datastore
-instances and subscribe to each institutions Manifestation and Items datastores that are
-managed and hosted either locally at each institution, by the Alliance, or by using a
-commercial cloud provider. Each institution could use the Alliance's hosted Work and
-Expression datastores in their own Access and Discovery Apps.
+Some interesting network topologies for bibliographic information may be possible when using Redis
+as the underlying datastore and FRBR/RDA as the organizing principle. For example, the Alliance may
+host the shared Work and Expression datastores, then subscribe to Manifestation and Item datastores
+managed and hosted locally at each institution, at the Alliance, or at a commercial cloud provider.
+Each institution could also use the Alliance's hosted Work and Expression datastores in their own
+Access and Discovery Apps.
 </p>
 <p>
-Under in active development, Redis Cluster, with plans to have a stable release of Redis
-Cluster by the end of 2012. The library and the Alliance are also exploring some grant
-opportunities to fund the development and support for this new type of bibliographic
-datastore and the scale of hundred of millions of FRBR entities.
+Redis Cluster is under active development, with plans to have a stable release by the end of 2012.
+The library and the Alliance are exploring grant opportunities to fund the development and support
+for a new bibliographic datastore that will scale to hundreds of millions of FRBR entities.
 </p>
 <h2>Notes</h2>
 
