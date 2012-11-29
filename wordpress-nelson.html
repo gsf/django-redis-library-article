@@ -16,7 +16,7 @@ copy-cataloging of print material.
 With the quality of vendor-supplied MARC records varying considerably, the old workflows to
 manipulate and load records into our legacy ILS were often long and laborious processes. By
 scripting the manipulation of these MARC records with Python and the pymarc Python module 
-[<a id="ref1" href="#note1">1</a>], then developing a web frontend in Django, we brought 
+[<a id="ref1" href="#note1">1</a>], then developing a web front-end in Django, we brought 
 considerable time savings to our cataloging staff.  This lead to a second project Django 
 application that enabled senior students to self-submit their thesis or final essay, along with 
 any supporting datasets, to our Fedora Commons digital repository.
@@ -32,7 +32,7 @@ Tutt Library discovery-layer project available on Github under the Apache 2 open
 In 2011, we started to explore using Redis, a popular NoSQL technology, to represent bibliographic
 and operational information. This research lead to the FRBR-Redis datastore project that was the
 topic of a 2012 Code4Lib presentation [<a id="ref2" href="#note2">2</a>]. The FRBR-Redis datastore
-has over 850 unit tests that demonstrate Redis's ability to represent MARC and MODS metadata as well
+has over 850 unit tests that tested Redis's ability to represent MARC and MODS metadata as well
 as RDA FRBR entities as Redis data primitives.
 </p>
 <h2>More about Redis</h2>
@@ -50,7 +50,12 @@ databases of more traditional library systems. The flexibility of Redis allows f
 development of multiple apps by supporting different information schemes and structures within a
 single datastore.  For example, in the Aristotle Library Apps project, RDA Core FRBR entities and
 attributes are extracted from MARC records following the MARC-to-RDA mappings provided in the ALA's
-RDA Toolkit  [<a href="ref4" href="#note4">4</a>]. Meanwhile, financial information, such as
+RDA Toolkit  [<a href="ref4" href="#note4">4</a>].
+</p>
+<code>
+  bibframe:CreativeWork:45
+</code>
+Meanwhile, financial information, such as
 material orders and invoice information stored in our ILS, is extracted and added to the Redis
 datastore for reporting and budget forecasts. We even store the library hours as Redis Primitives in
 the datastore for use in a standalone app and as a JSON data feed for our discovery layer.
@@ -169,11 +174,45 @@ the library's website, through the use of JSON APIs and raw html.
 When the college adopted a CMS incapable of building a dynamic feed of the library's hours
 of operations for the library's homepage, we felt that a dedicated app with a
 JSON feed and hours data stored in Redis would work instead. The Library Hours App
-stores dates and hours in a set. The patron user interface for the Hours App displays a
+stores dates and hours in a string using Redis bit operations commands. 
+Each day has a unique key with the following pattern: "library-hours:YYYY-MM-DD", with 
+the value being a 96-bit string with each bit representing a quarter hour with bit offset 1
+representing 00:00 to 00:14, bit offset 2, 00:15-00:29, etc. for each quarter hour of a
+twenty-four hour day. Bits set to zero (the default) means the library is closed, the bit 
+set to 1 means the library is open for that quarter hour.
+</p>
+<p>
+ To see if the library is open, the Hours App queries the library's operational Redis 
+ datastore by using a Redis <code>GETBIT</code> command as demonstrated in this code snippet
+ from the Hours App's view.py:
+</p>
+<pre>
+  def is_library_open(question_date=None):
+      if question_date is None:
+          question_date = datetime.datetime.now()
+      offset = question_date.hour * 4
+      minute = question_date.minute
+      if minute > 14 and minute < 29:
+          offset += 1
+      elif minute > 29 and minute < 45:
+          offset += 2
+      else:
+          offset += 3
+      redis_key = question_date.strftime('library-hours:%Y-%m-%d')
+      return bool(int(OPERATIONAL_REDIS.getbit(redis_key)))
+</pre>
+<p>
+The patron user interface for the Hours App displays a
 simple message with the library's current hours. If the library is closed, the app
-displays the next available date and time when the library is open. The app also has an
+displays the next available date and time when the library is open. With just using 
+365 keys per year, one for each day, this Redis structure easily supports the requirements
+for the Hours App. 
 administrative user interface for authenticated library staff to add or modify the hours
 data structures in Redis.  
+</p>
+<p>
+
+
 </p>
 <h2>Productivity Apps</h2>
 <p>
