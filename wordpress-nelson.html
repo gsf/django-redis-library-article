@@ -28,7 +28,7 @@
 
 <p>For large datasets that may not fit into RAM; the lead developer on the Redis project, Salvatore Sanfilippo, recommends using a presharding  [<a id="ref10" href="#note10">10</a>], as a way to break up the datastore among different Redis instances. The naming schema used by the Aristotle Library Apps and BIBFRAME Datastore project can easily support presharding for use in large collections, although for the time being, a single Virtual Machine with 4G of RAM is more than sufficient to run all of Colorado College's BIBFRAME Datastore Redis instances. The following graphic shows our Colorado College BIBFRAME Datastore set-up.</p>
 
-<p><img src="single-server-bibframe-datastore.svg" alt="BIBFRAME Datastore Single Server Setup"><br/>
+<p><img src="single-server-bibframe-datastore.png" alt="BIBFRAME Datastore Single Server Setup"><br/>
  Figure 1: Colorado College's BIBFRAME Datastore set-up</p>
 
 <h2>The Evolution of a Native Bibliographic Redis Datastore</h2>
@@ -97,14 +97,14 @@
 <p>The majority of apps in the initial Aristotle Library App project are categorized as Access and Discovery Apps, which allow users to find and access the library resources and more general information about the library that is stored in the Redis datastore. Access and Discovery Apps broadly address the generic tasks by users to find, identify, select, and obtain resources as expressed in the FRBR specification [<a id="ref14" href="#note14">14</a>].  Also included in this category are apps, like the Tutt Library's Hours App that informs a patron if the library is open or closed, that are for primary patron use. While not bibliographic in nature, the Tutt Library Hours App addresses one of the top questions the Tutt Library receives from patrons.</p>
 
 <h3>The Call Number App</h3>
-
+<img src="call-number-app.png" />
 <p>The Call Number App was the first app released and served as the catalyst for the entire Aristotle project. As we worked on the discovery layer, another librarian was inspired by a feature in Stanford University's Searchworks (built with Blacklight and Hydra) that allowed a patron to see which call numbers were near each other in the library's stacks. While investigating Stanford's implementation based on Solr, we realized a simplified data model could be used with Redis. To create the type of sorted indexes needed for this app, normalized Library of Congress, SuDoc, and local call numbers were added as weights to Redis sorted sets. Once we had embedded the Call Number App into the discovery layer, we explored the further development of dedicated, simplified apps for common searches. These independent apps could be used in larger systems, like the discovery layer or the library's website, through the use of JSON APIs and raw html.</p>
 
 <h3>Library Hours App</h3>
 
 <p>When the college adopted a CMS incapable of building a dynamic feed of the library's hours of operations for the library's homepage, we felt that a dedicated app with a JSON feed and hours data stored in Redis would work instead. The Library Hours App stores dates and hours in a string using Redis bit operations commands.  Each day has a unique key with the following pattern: "library-hours:YYYY-MM-DD", with the value being a 96-bit string with each bit representing a quarter hour with bit offset 1 representing 00:00 to 00:14, bit offset 2, 00:15-00:29, etc. for each quarter hour of a twenty-four hour day. Bits set to zero (the default) means the library is closed, the bit set to 1 means the library is open for that quarter hour.</p>
 
-<p>To see if the library is open, the Hours App queries the library's operational Redis datastore by using a Redis <code>GETBIT</code> command as demonstrated in this code snippet from the Hours App's redis_helpers.py [<a href="#note??" id="ref??">??</a>]:</p>
+<p>To see if the library is open, the Hours App queries the library's operational Redis datastore by using a Redis <code>GETBIT</code> command as demonstrated in this code snippet from the Hours App's redis_helpers.py [<a href="#note16" id="ref16">16</a>]:</p>
 
 <pre>def is_library_open(question_date=datetime.datetime.today(),
                     redis_ds=redis_ds):
@@ -135,15 +135,19 @@
 <p>The Tutt Library uses its Call Number, Hours, Title Search, Subject, and Creator apps to augment the library's website and discovery layer. These are publicly available, along with the Article and Book Search Apps, at <a href="http://discovery.coloradocollege.edu/apps/">http://discovery.coloradocollege.edu/apps/</a>. The same JSON interface that the Call Number App uses to populate a shelf-browser is also used in the record view in the discovery layer. The Hours App provides an embedded HTML snippet for inclusion in various locations in the library's website.</p>
 
 <p>The next wave of app development will focus on material circulation, including check-out, course reserves, and inventory. The main users of these workflows will be in the library, serving as testers and consultants for these productivity apps while the systems group develops and releases them. In keeping with agile philosophy, each app should be simple enough to design, implement, and start testing within a three-to-four week sprint, which nicely coincides with the current academic block calendar at Colorado College.</p>
-
+<p>
 <h3>App Support for LDAP Authentication</h3>
 
 <p>Currently, authentication is provided through a custom Django authentication backend developed to interface with the Tutt Library's legacy ILS. As the library transitions from a traditional ILS to a modular apps model, we plan to use the identification credentials that primary patrons already have as members of the college community. As with many organizations, Colorado College uses Microsoft's ActiveDirectory to manage authentication tasks for networked resources on campus. The next piece necessary for an enterprise-level app ecosystem will be an authentication module leveraging Django's rich and mature LDAP support.</p>
 
-<h3>Redis Cluster and Consortium Union Catalog</h3>
-
-<img src="http://journal.code4lib.org/media/issue18/Nelson/figure1.png">
-
+<h3>Peer-to-Peer and Consortium Union Catalogs</h3>
+<p>
+<img src="peer-to-peer-bibframe-datastores.png" /><br/>
+Figure 3: Multiple Institutions Peer-to-Peer BIBFRAME Datastores</p>
+<p>We are currently in the early stages of a dual peer-to-peer BIBFRAME Datastore with the University of Denver's Penrose Library. In this early exploritory </p>
+<p>
+<img src="consortium-bibframe-datastores.png" /><br/>
+Figure 4: Design of a Consortium BIBFRAME Datastores</p>
 <p>Concern over interoperability was brought up as a challenge to any radical technology change as the Tutt Library moved to an app model. The regional Colorado Alliance of Research Library's Prospector union catalog, in which Colorado College is both an active lender and borrower, supports the college's block plan, where students take intense, 3 1/2 week courses for college credit. With students needing research material promptly, Tutt Library strives to deliver to students, faculty, and staff as promptly as possible, preferably under 72 hours. The Prospector-based ILL service is critical to meet this tight deadline for materials. Any replacement or legacy ILS cannot diminish that service.</p>
 
 <p>Maintaining record-level interoperability should be relatively easy in the Library App Portfolio as long as the MARC utilities and productivity apps are in active development. The challenge is in integrating material requests and real-time circulation status into the proprietary system the Alliance currently uses for the Prospector. A strength of Redis is its ability to store and serve large volumes of data, as it has done for sites such as Github, Engine Yard, Craigslist, Disqus, and Stack Overflow [<a id="ref9" href="#note9">9</a>]. The library is in early discussions with the Alliance about expanding the Aristotle Library Apps project to scale for the millions of records.</p>
