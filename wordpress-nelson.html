@@ -70,7 +70,7 @@ When the college adopted a CMS incapable of building a dynamic feed of the libra
 
 To see if the library is open, the Hours App queries the library's operational Redis datastore by using a Redis <code>GETBIT</code> command as demonstrated in this code snippet from the Hours App's redis_helpers.py [<a href="#note15" id="ref15">15</a>]:
 
-<pre>def is_library_open(question_date=datetime.datetime.today(),
+[sourcecode language='python']def is_library_open(question_date=datetime.datetime.today(),
                     redis_ds=redis_ds):
     """
     Function checks datastore for open and closing times, returns
@@ -84,7 +84,7 @@ To see if the library is open, the Hours App queries the library's operational R
     offset = calculate_offset(question_date)
     status_key = question_date.strftime(library_key_format)
     return bool(int(redis_ds.getbit(status_key,offset)))
-</pre>
+[/sourcecode]
 
 The patron user interface for the Hours App displays a simple message with the library's current hours. If the library is closed, the app displays the next available date and time when the library is open. With 365 keys per year, one for each day, this Redis structure easily supports the requirements of the Hours App administrative user interface, allowing authenticated library staff to add or modify the posted hours.
 
