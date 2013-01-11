@@ -28,8 +28,7 @@ The Redis string, set, sorted set, list and hash data primitives all offer diffe
 
 For large datasets that may not fit into RAM; the lead developer on the Redis project, Salvatore Sanfilippo, recommends using a presharding  [<a id="ref10" href="#note10">10</a>], as a way to break up the datastore among different Redis instances. The naming schema used by the Aristotle Library Apps and BIBFRAME Datastore project can easily support presharding for use in large collections, although for the time being, a single Virtual Machine with 4G of RAM is more than sufficient to run all of Colorado College's BIBFRAME Datastore Redis instances. The following graphic shows our Colorado College BIBFRAME Datastore set-up.
 
-<img src="single-server-bibframe-datastore.png" alt="BIBFRAME Datastore Single Server Setup"><br/>
- Figure 1: Colorado College's BIBFRAME Datastore set-up
+<p class="caption" id="fig1"><a href="http://journal.code4lib.org/media/issue19/nelson/single-server-bibframe-datastore.png"><img src="http://journal.code4lib.org/media/issue19/nelson/single-server-bibframe-datastore-500.png" alt="Figure 1. BIBFRAME Datastore Single Server Setup"></a> <strong>Figure 1.</strong> Colorado College's BIBFRAME Datastore Setup</p>
 
 <h2>The Evolution of a Native Bibliographic Redis Datastore</h2>
 
@@ -37,8 +36,7 @@ The first iteration of a Redis bibliographic datastore used a naming schema base
 
 For example, in the Aristotle Library Apps project, RDA Core FRBR entities and attributes are extracted from MARC records following the MARC-to-RDA mappings provided in the ALA's RDA Toolkit  [<a href="ref11" href="#note11">11</a>] that are then organized into Redis key collections following a pattern that maps to BIBFRAME linkable information resources like Creative Work, Instance, Authority, and Annotation. The figure below shows one such BIBFRAME Redis key collection for a CreativeWork's RDA:Title with supporting Redis keys for that entity. The <code>phonetic</code>, <code>rda:variantTitleForTheWork:sort</code> subkeys and subvalues in the bibframe:CreativeWork's rda:Title supports Title searches by various apps and Colorado College's Discovery Layer.
 
-<img src="title-redis-structure.png" alt="Example of Bibliographic Redis Keys and Data Primitive Values for a BIBFRAME Creative Work's Title" /><br/>
-Figure 2: Example of Bibliographic Redis Keys and Data Primitive Values for a BIBFRAME Creative Work's Title
+<p class="caption" id="fig2"><a href="http://journal.code4lib.org/media/issue19/nelson/title-redis-structure.png"><img src="http://journal.code4lib.org/media/issue19/nelson/title-redis-structure-500.png" alt="Figure 2. Example of Bibliographic Redis Keys and Data Primitive Values for a BIBFRAME Creative Work's Title" /></a> <strong>Figure 2.</strong> Example of Bibliographic Redis Keys and Data Primitive Values for a BIBFRAME Creative Work's Title</p>
 
 The BIBFRAME Datastore can easily supports other metadata formats and values. Continuing the previous example, if we wanted to use MODS or Dublin Core instead of RDA, the BIBFRAME Datastore key could look like <code>bibframe:CreativeWork:10089:mods:titleInfo</code> with each of the MODS titleInfo sub-elements as hash key-values pairs for an individual CreativeWork. Likewise, a Redis key like <code>bibframe:CreativeWork:10089:dc:title</code> could either be simple static string or could be a HASH like the current rda:Title key used in the current iteration of the BIBFRAME-Datastore project. We could even have all three (or as many different keys as desired) exist in the same Redis datastore instance. The design of the Redis key's structure is through convention and convenience with an effort to be explicitly descriptive of the data that is returned by Redis without being too verbose.
 
@@ -60,15 +58,13 @@ The majority of apps in the initial Aristotle Library App project are categorize
 
 <h3>The Call Number App</h3>
 
-<img src="call-number-app.png" alt="Screen-shot of the Call Number App" /><br/>
-Figure 3: Screen-shot of the Call Number App
+<p class="caption" id="fig3"><a href="http://journal.code4lib.org/media/issue19/nelson/call-number-app.png"><img src="http://journal.code4lib.org/media/issue19/nelson/call-number-app-500.png" alt="Figure 3. Screenshot of the Call Number App" /></a> <strong>Figure 3.</strong> Screenshot of the Call Number App</p>
 
 The Call Number App was the first app released and served as the catalyst for the entire Aristotle project. As we worked on the discovery layer, another librarian was inspired by a feature in Stanford University's Searchworks (built with Blacklight and Hydra) that allowed a patron to see which call numbers were near each other in the library's stacks. While investigating Stanford's implementation based on Solr, we realized a simplified data model could be used with Redis. To create the type of sorted indexes needed for this app, normalized Library of Congress, SuDoc, and local call numbers were added as weights to Redis sorted sets. Once we had embedded the Call Number App into the discovery layer, we explored the further development of dedicated, simplified apps for common searches. These independent apps could be used in larger systems, like the discovery layer or the library's website, through the use of JSON APIs and raw html.
 
 <h3>Library Hours App</h3>
 
-<img src="hours-app.png" alt="Screen shot of Library Hours App"><br/>
-Figure 4: Screen-shot of Library Hours App
+<p class="caption" id="fig4"><a href="http://journal.code4lib.org/media/issue19/nelson/hours-app.png"><img src="http://journal.code4lib.org/media/issue19/nelson/hours-app-500.png" alt="Figure 4. Screenshot of Library Hours App"></a> <strong>Figure 4.</strong> Screenshot of Library Hours App</p>
 
 When the college adopted a CMS incapable of building a dynamic feed of the library's hours of operations for the library's homepage, we felt that a dedicated app with a JSON feed and hours data stored in Redis would work instead. The Library Hours App stores dates and hours in a string using Redis bit operations commands. Each day has a unique key with the following pattern: "library-hours:YYYY-MM-DD", with the value being a 96-bit string with each bit representing a quarter hour with bit offset 1 representing 00:00 to 00:14, bit offset 2, 00:15-00:29, etc. for each quarter hour of a twenty-four hour day. Bits set to zero (the default) means the library is closed, the bit set to 1 means the library is open for that quarter hour.
 
@@ -108,14 +104,11 @@ The next wave of app development will focuses both on improving local workflows 
 
 Concern over interoperability was brought up as a challenge to any radical technology change as the Tutt Library moved to an app model. The regional Colorado Alliance of Research Library's Prospector union catalog, in which Colorado College is both an active lender and borrower, supports the college's block plan, where students take intense, 3 1/2 week courses for college credit. With students needing research material promptly, Tutt Library strives to deliver to students, faculty, and staff as promptly as possible, preferably under 72 hours. The Prospector-based ILL service is critical to meet this tight deadline for materials. Any replacement or legacy ILS cannot diminish that service. Our plan to tackle these challenges involves an incremental approach, first starting off with a simple, two institutions shared BIBFRAME datastores before increasing the scale to a consortium or regional scale.
 
-<img src="peer-to-peer-bibframe-datastores.png" alt="Multiple Institutions Peer-to-Peer BIBFRAME Datastores" /><br/>
-Figure 5: Multiple Institutions Peer-to-Peer BIBFRAME Datastores
+<p class="caption" id="fig5"><a href="http://journal.code4lib.org/media/issue19/nelson/peer-to-peer-bibframe-datastores.png"><img src="http://journal.code4lib.org/media/issue19/nelson/peer-to-peer-bibframe-datastores-500.png" alt="Figure 5. Multiple Institutions Peer-to-Peer BIBFRAME Datastores" /></a> <strong>Figure 5.</strong> Multiple Institutions Peer-to-Peer BIBFRAME Datastores</p>
 
-We are currently in the early stages of prototyping peer-to-peer BIBFRAME Datastore with the University of Denver's Penrose Library. As the above diagram illustrates, in this early exploratory work Colorado College and University of Denver each have their own Redis
-Master datastores running in their respective, local virtual machine environments. Both institutions have local Redis slave datastores of each other's Creative Work, Authority, and Annotations that syncs up with its corresponding Master hosted by each individual institution. Our intention is to test the usability of a shared BIBFRAME Redis-based union catalog with two institutions as preparation for scaling up to a consortium-level service.
+We are currently in the early stages of prototyping peer-to-peer BIBFRAME Datastore with the University of Denver's Penrose Library. As the above diagram illustrates, in this early exploratory work Colorado College and University of Denver each have their own Redis Master datastores running in their respective, local virtual machine environments. Both institutions have local Redis slave datastores of each other's Creative Work, Authority, and Annotations that syncs up with its corresponding Master hosted by each individual institution. Our intention is to test the usability of a shared BIBFRAME Redis-based union catalog with two institutions as preparation for scaling up to a consortium-level service.
 
-<img src="consortium-bibframe-datastores.png" /><br/>
-Figure 6: Design of a Consortium BIBFRAME Datastores
+<p class="caption" id="fig6"><a href="http://journal.code4lib.org/media/issue19/nelson/consortium-bibframe-datastores.png"><img src="http://journal.code4lib.org/media/issue19/nelson/consortium-bibframe-datastores-500.png" alt="Figure 6. Design of a Consortium BIBFRAME Datastores"/></a> <strong>Figure 6.</strong> Design of a Consortium BIBFRAME Datastores</p>
 
 Maintaining record-level interoperability should be relatively easy in the Library App Portfolio as long as the MARC utilities and productivity apps are in active development. The challenge is in integrating material requests and real-time circulation status into the proprietary system the Alliance currently uses for the Prospector. A strength of Redis is its ability to store and serve large volumes of data, as it has done for sites such as Github, Engine Yard, Craigslist, Disqus, and Stack Overflow [<a id="ref16" href="#note16">16</a>]. The library is in early discussions with the Alliance about expanding the Aristotle Library Apps project to scale for the millions of records.
 
